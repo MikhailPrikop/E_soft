@@ -6,6 +6,12 @@ from sqlalchemy import Column, Integer, String, Text
 
 Base = declarative_base()
 
+class Note:
+    id : int
+    name : str
+    command: str
+    value : str
+
 class DataFile(Base):
     __tablename__ = 'data_files'
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -14,12 +20,7 @@ class DataFile(Base):
     num_cols = Column(Integer)
     data_summary = Column(Text)
 
-#class DataFile(BaseModel):
-   # id: int
-    #filename: str
-   # num_rows: int
-   # num_cols: int
-    #data_summary: Optional[str] = None
+
 
 
 

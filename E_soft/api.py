@@ -1,11 +1,16 @@
 from flask import Flask, jsonify, request, Response
 import json
 from io import BytesIO
+import model
 from logic import DataProccessing
 
 _data_process = DataProccessing()
+note = model.Note()
 
 app = Flask(__name__)
+
+#список разрешенных форматов
+allowed_extensions = ['csv', 'xls', 'xlsx']
 
 # класс api исключений
 class ApiException(Exception):
@@ -16,8 +21,29 @@ def output_data(input_data):
     json_data = json.dumps(input_data, indent=4, ensure_ascii=False)
     return Response(json_data)
 
-#список разрешенных форматов
-allowed_extensions = ['csv', 'xls', 'xlsx']
+#функция чтения причечания к запросу
+def _from_raw(raw_note: str) -> model.Note:
+    parts = raw_note.split('|')
+    if len(parts) == 1:
+        note = model.Note()
+        note.id = None
+        note.name = parts[0]
+        return note
+    elif len(parts) == 2:
+        note = model.Note()
+        note.id = None
+        note.name = parts[0]
+        note.command = parts[1].split(',')
+        return note
+    elif len(parts) == 3:
+        note = model.Note()
+        note.id = None
+        note.name = parts[0]
+        note.command = parts[1].split(',')
+        note.value = parts[2].split(',')
+        return note
+    else:
+        raise ApiException(f"invalid RAW note data")
 
 #загрузка файла
 @app.route('/POST/upload', methods=['POST'])
@@ -44,12 +70,19 @@ def upload_file():
             return f"{ex}", 400
 
 
-
-
 #статистика
-@app.route('/GET/data/stats', methods=['POST'])
+@app.route('/GET/data/stats', methods=['GET'])
 def stats():
-    pass
+    data = request.get_data().decode('utf-8')
+    note = _from_raw(data)
+    note.id = 1
+    result = _data_process.existence_table(note.name)
+    if not result:
+        return f'Table {note.name} not found'
+    else:
+        print("Table found")
+
+
 
 #очистка файла
 @app.route('/GET/data/clean', methods=['POST'])

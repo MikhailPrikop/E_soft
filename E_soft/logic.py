@@ -3,6 +3,9 @@ import io
 from storage import DataStorage
 from model import DataFile
 from model import Base
+from model import Note
+import sqlalchemy
+from sqlalchemy import text
 
 # класс api исключений
 class LogicException(Exception):
@@ -47,3 +50,18 @@ class DataProccessing:
 
         except Exception as ex:
             raise LogicException(f"{ex}")
+
+    def existence_table(self, table_name):
+        query = text(
+            """SELECT EXISTS (
+                   SELECT 1 
+                   FROM data_files 
+                   WHERE filename = :filename
+               );"""
+        )
+        result = self.storage.execute_query(query, {'filename': table_name})
+        exists = result[0][0] if result else False
+        return exists
+
+
+
