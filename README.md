@@ -79,25 +79,37 @@ curl http://127.0.0.1:5000/POST/upload -X POST -F "file=@D:\file.xlsx"
     "4. Number of cols": 3
 }
 ##### - отсутвие в запросе файла
+...
 $ curl  http://127.0.0.1:5000/POST/upload -X POST
+...
 Error: file not selected or file not part
 
 ##### - неверное расширение файла
+...
 $ curl http://127.0.0.1:5000/POST/upload -X POST -F "file=@D:\filename.txt"
+...
 Error: unsupported file format
 
 ##### - файл успешно загружен
+...
 $ curl http://127.0.0.1:5000/POST/upload -X POST -F "file=@D:\filename.csv"
+...
 The file was saved successfully
 
 ##### - файл пустой
-curl http://127.0.0.1:5000/POST/upload -X POST -F "file=@D:\empty.csv"\
+curl http://127.0.0.1:5000/POST/upload -X POST -F "file=@D:\empty.csv"
+...
 Uploaded file is empty\
+...
 
 ### запрос stats
 
 #### запрос общей статистики
+...
+
 curl http://127.0.0.1:5000/GET/data/stats -X GET -d "file"
+...
+
 [
     {
         "index": "count",
@@ -149,6 +161,8 @@ curl http://127.0.0.1:5000/GET/data/stats -X GET -d "file"
     }
 ]
 #### запрос матрицы корреляции
+...
+
 curl http://127.0.0.1:5000/GET/data/stats -X GET -d "file|correlation"
 [
     {
@@ -175,19 +189,36 @@ curl http://127.0.0.1:5000/GET/data/stats -X GET -d "file|correlation"
 ### запрос clean
 
 #### запрос clean когда дубликаты отсутствуют
+...
+
 curl http://127.0.0.1:5000/GET/data/clean -X GET -d "file"
 No duplicates found in file
+...
+
 
 #### запрос clean при наличии дубликатов
 curl http://127.0.0.1:5000/GET/data/clean -X GET -d "file"
+...
+
 Duplicates removed successfully (number = 1). Edited file saved by name ('new_file',)
+...
 
 
 ### вызов plot
+...
+
 ###№ построение матрицы корреляции
+...
+
 curl http://127.0.0.1:5000/GET/data/plot -X GET -d "file|correlation"
+...
+
 Correlation matrix file has been successfully constructed
 
 ### построение box_plot
+...
+
 curl http://127.0.0.1:5000/GET/data/plot -X GET -d "file"
+...
+
 The diagram file has been successfully built.
