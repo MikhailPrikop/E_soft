@@ -10,7 +10,6 @@ class Note:
     id : int
     name : str
     command: str
-    value : str
 
 class DataFile(Base):
     __tablename__ = 'data_files'

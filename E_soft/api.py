@@ -28,19 +28,13 @@ def _from_raw(raw_note: str) -> model.Note:
         note = model.Note()
         note.id = None
         note.name = parts[0]
+        note.command = ""
         return note
     elif len(parts) == 2:
         note = model.Note()
         note.id = None
         note.name = parts[0]
-        note.command = parts[1].split(',')
-        return note
-    elif len(parts) == 3:
-        note = model.Note()
-        note.id = None
-        note.name = parts[0]
-        note.command = parts[1].split(',')
-        note.value = parts[2].split(',')
+        note.command = parts[1]
         return note
     else:
         raise ApiException(f"invalid RAW note data")
@@ -76,12 +70,12 @@ def stats():
     data = request.get_data().decode('utf-8')
     note = _from_raw(data)
     note.id = 1
-    result = _data_process.existence_table(note.name)
-    if not result:
-        return f'Table {note.name} not found'
-    else:
-        print("Table found")
-
+    try:
+        _data_process.existence_table(note.name)
+        result = _data_process.requiest_proccesing(note)
+        return output_data(result)
+    except Exception as ex:
+        return f"{ex}", 400
 
 
 #очистка файла

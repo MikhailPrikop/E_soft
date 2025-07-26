@@ -6,6 +6,7 @@ from model import Base
 from model import Note
 import sqlalchemy
 from sqlalchemy import text
+import model
 
 # класс api исключений
 class LogicException(Exception):
@@ -51,17 +52,55 @@ class DataProccessing:
         except Exception as ex:
             raise LogicException(f"{ex}")
 
+    #проверка наличия в базе данных указанной таблицы
     def existence_table(self, table_name):
         query = text(
-            """SELECT EXISTS (
-                   SELECT 1 
-                   FROM data_files 
-                   WHERE filename = :filename
-               );"""
-        )
-        result = self.storage.execute_query(query, {'filename': table_name})
-        exists = result[0][0] if result else False
-        return exists
+                    """SELECT EXISTS (
+                           SELECT 1 
+                           FROM data_files 
+                           WHERE filename = :filename
+                       );"""
+                    )
+        try:
+            result_query = self.storage.execute_query(query, {'filename': table_name})
+            result_query = result_query.fetchall()
+            result_query= result_query[0][0] if result_query else False
+            return result_query
+        except Exception as ex:
+            raise LogicException(f'Table {note.name} not found. {ex}')
+
+    def requiest_proccesing(self, note: model.Note):
+        #запрос статистика
+        if note.id == 1:
+            query = (f'SELECT * '
+                     f'FROM "{note.name}";'
+                     )
+            try:
+                result_query =  self.storage.execute_query(text(query))
+                rows = result_query.fetchall()
+                keys = result_query.keys()
+                df =  pd.DataFrame(rows, columns=keys)
+                df_num = df.select_dtypes(include=['number'])
+                #получаем описание статистики и корреляции в зависмимости от команды
+                if note.command.lower() == "correlation":
+                    df_stats = df_num.corr()
+                    new_name_table = f'correlation_{note.name}'
+                else:
+                    df_stats = df_num.describe()
+                    # сохраняем описание в базу данных
+                    new_name_table = f'statistics_{note.name}'
+
+                # сохраняем описание в базу данных
+                df_stats.to_sql(new_name_table,
+                                       con=self.storage.engine,
+                                       if_exists='replace',
+                                        index=False)
 
 
+                # результат в список словврей
+                result = df_stats.reset_index().to_dict(orient='records')
+                return result
+
+            except Exception as ex:
+                raise LogicException(f"Failed to get statistics: {ex}")
 

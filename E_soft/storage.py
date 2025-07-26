@@ -53,13 +53,6 @@ class DataStorage:
         finally:
             self.close()
 
-    def sql_to_pd(self, query):
-        self.connect()
-        try:
-            df = pd.read_sql(query, con=self.engine)
-            return df
-        except Exception as ex:
-            raise Exception(f"Error while uploading data: {ex}")
 
     # выполнение запросов
     def execute_query(self, query, params=None):
@@ -69,9 +62,11 @@ class DataStorage:
                 result = self.session.execute(query, params)
             else:
                 result = self.session.execute(query)
-            return result.fetchall()
+            return result
         except Exception as ex:
             raise StorageException(f"Error executing request: {ex}")
+
+
 
 
 
