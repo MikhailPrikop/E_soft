@@ -40,7 +40,7 @@ def _from_raw(raw_note: str) -> model.Note:
         raise ApiException(f"invalid RAW note data")
 
 #загрузка файла
-@app.route('/POST/upload', methods=['POST'])
+@app.route('/POST/data/upload', methods=['POST'])
 def upload_file():
     #проверка file в запросе
     if 'file' not in request.files:
@@ -71,7 +71,7 @@ def stats():
     note = _from_raw(data)
     note.id = 1
     try:
-        _data_process.existence_table(note.name)
+        _data_process.existence_table(note)
         result = _data_process.requiest_proccesing(note)
         return output_data(result)
     except Exception as ex:
@@ -79,11 +79,40 @@ def stats():
 
 
 #очистка файла
-@app.route('/GET/data/clean', methods=['POST'])
+@app.route('/GET/data/clean', methods=['GET'])
 def clean_file():
-    pass
+    data = request.get_data().decode('utf-8')
+    note = _from_raw(data)
+    note.id = 2
+    try:
+        _data_process.existence_table(note)
+        result = _data_process.requiest_proccesing(note)
+        return result
+    except Exception as ex:
+        return f"{ex}", 400
 
 #построение графиков
-@app.route('/GET/data/plot', methods=['POST'])
+@app.route('/GET/data/plot', methods=['GET'])
 def show_plot():
-    pass
+    data = request.get_data().decode('utf-8')
+    note = _from_raw(data)
+    note.id = 3
+    try:
+        _data_process.existence_table(note)
+        result = _data_process.requiest_proccesing(note)
+        return result
+    except Exception as ex:
+        return f"{ex}", 400
+
+#информация о имеющихся в базе данных таблицах
+@app.route('/GET/data/history', methods=['GET'])
+def list_table():
+    data = request.get_data().decode('utf-8')
+    note = _from_raw(data)
+    note.id = 4
+    try:
+        result = _data_process.requiest_proccesing(note)
+        return output_data(result)
+    except Exception as ex:
+        return f"{ex}", 400
+

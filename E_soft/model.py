@@ -17,7 +17,7 @@ class DataFile(Base):
     filename = Column(String, nullable=False)
     num_rows = Column(Integer)
     num_cols = Column(Integer)
-    data_summary = Column(Text)
+
 
 
 

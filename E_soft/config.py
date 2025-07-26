@@ -1,0 +1,1 @@
+db_URL = "postgresql://postgres:@localhost:5432/E_soft"

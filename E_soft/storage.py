@@ -16,7 +16,7 @@ class DataStorage:
         self.db_url = db_URL or os.getenv('DATABASE_URL')
         self.engine = None
         self.session = None
-    # подключениt
+    # подключение
     def connect(self):
         if self.db_url is None:
             raise StorageException("Environment variable 'DATABASE_URL' is not set!")
@@ -31,7 +31,8 @@ class DataStorage:
                 connection.execute(text("SELECT 2"))
         except Exception as ex:
             raise StorageException(f"Connection error: {ex}")
-    # закрытие сессии
+
+    # закрытие сессии и движка
     def close(self):
         if self.session:
             self.session.close()
@@ -65,6 +66,8 @@ class DataStorage:
             return result
         except Exception as ex:
             raise StorageException(f"Error executing request: {ex}")
+        finally:
+            self.close()
 
 
 

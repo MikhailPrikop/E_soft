@@ -1,5 +1,20 @@
-<<<<<<< HEAD
+<<<<<<< E_SOFT
+### запуск приложения
+
+#### в среде виндовс
+ необходимо создать и активировать виртуальное окружение, загрузить требуемые библиотеки:
+- используя в терминале команду cd укажите директорию расположения файлов приложения ;
+- для создания виртуальной среды в командной строке запустите команду python -m venv .venv ;
+- для установки необходимых зависимостей используйте в терминале команду pip install -r requirements.txt .
+- для запуска приложения используйте команду flask --app server.py run/
+
 ### настройка подключения к базе данных
+
+#### вариант 1
+- указать в файле config.py db_URL с параметрами для подключения к базе данных
+- db_URL = "postgresql://имя пользователя:пароль@localhost:номер порта/название базы данных"
+
+####вариант 2
 - для подключения к базе данных необходимо настроить переменное окружение DATABASE_URL\
 - для настройки переменного окружения введите следующую команду:\
 - для windows в cmd:  set DATABASE_URL=postgresql://user:password@localhost:5432/database\
@@ -9,8 +24,51 @@
 
 ### cURL  запросы для тестирования
 
+#### загрузка файла
+...
+curl http://127.0.0.1:5000/POST/upload -X POST -F "file=@path_name"
+...
+
+- где path_name - полное имя загружаемого файла
+
+#### получение списка таблиц имеющихся в  базе данных
+...
+http://127.0.0.1:5000/GET/data/history -X GET
+...
+
+#### очистка данных от дубликатов
+...
+curl http://127.0.0.1:5000/GET/data/clean -X GET -d "file"
+...
+- где table_name имя интересующей вас таблицы (сформировано от имени ранее загруженного файла)
+- (загружаемый ранее файл filename.csv, table_name = filename)
+- измененные данные в результате очистки сохраняются под новым именем (с добалением к имени таблицы префикса new_)
+
+#### вызов аналитики
+...  
+curl http://127.0.0.1:5000/GET/data/stats -X GET -d "table_name|command"
+...
+- где table_name имя интересующей вас таблицы (сформировано по имения файла)
+- (загружаемый ранее файл filename.csv, table_name = filename)
+- | разделитель
+- где command название команды (correlation - вызывает корреляционную матрицу, в других случаях независимо от написания вызывается описательная статистика)
+- данные описательной статитистики и корреляции сохраняются в базе данных по именами c добавением префиксов statistics_ и correlation_ соответсвенно
+
+#### вызов графиков
+...  
+curl http://127.0.0.1:5000/GET/data/plot -X GET -d "table_name|command"
+...
+- где table_name имя интересующей вас таблицы (сформировано по имения файла)
+- (загружаемый ранее файл filename.csv, table_name = filename)
+- | разделитель
+- где command название команды (correlation - вызывает рисунок корреляционной матрицы, в других случаях независимо от написания вызывается box plot)
+- данные описательной статитистики и корреляции сохраняются в базе данных по именами c добавением префиксов statistics_ и correlation_ соответсвенно
+
+
 ### примеры исполнения команд с выводом
+
 ### загрузка файла
+
 ##### - успешная загрузка файла
 curl http://127.0.0.1:5000/POST/upload -X POST -F "file=@D:\file.xlsx"
 {
@@ -36,7 +94,8 @@ The file was saved successfully
 curl http://127.0.0.1:5000/POST/upload -X POST -F "file=@D:\empty.csv"\
 Uploaded file is empty\
 
-### запрос статистика
+### запрос stats
+
 #### запрос общей статистики
 curl http://127.0.0.1:5000/GET/data/stats -X GET -d "file"
 [
@@ -89,7 +148,7 @@ curl http://127.0.0.1:5000/GET/data/stats -X GET -d "file"
         "salary": 3453245.0
     }
 ]
-#### запрос корреляционной матрицы
+#### запрос матрицы корреляции
 curl http://127.0.0.1:5000/GET/data/stats -X GET -d "file|correlation"
 [
     {
@@ -110,3 +169,25 @@ curl http://127.0.0.1:5000/GET/data/stats -X GET -d "file|correlation"
         "age": 0.27469454263057114,
         "salary": 1.0
     }
+	]
+	
+	
+### запрос clean
+
+#### запрос clean когда дубликаты отсутствуют
+curl http://127.0.0.1:5000/GET/data/clean -X GET -d "file"
+No duplicates found in file
+
+#### запрос clean при наличии дубликатов
+curl http://127.0.0.1:5000/GET/data/clean -X GET -d "file"
+Duplicates removed successfully (number = 1). Edited file saved by name ('new_file',)
+
+
+### вызов plot
+###№ построение матрицы корреляции
+curl http://127.0.0.1:5000/GET/data/plot -X GET -d "file|correlation"
+Correlation matrix file has been successfully constructed
+
+### построение box_plot
+curl http://127.0.0.1:5000/GET/data/plot -X GET -d "file"
+The diagram file has been successfully built.
